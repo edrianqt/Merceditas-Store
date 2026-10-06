@@ -1,0 +1,17 @@
+@model MerceditasStore.Models.PageHeaderModel
+
+<div class="pagehead">
+    <div class="pagehead__left">
+        <h1 class="pagehead__title">@Model.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Subtitle))
+        {
+            <div class="pagehead__sub">@Model.Subtitle</div>
+        }
+    </div>
+    <div class="pagehead__right">
+        @if (Model.Actions is not null)
+        {
+            @Model.Actions
+        }
+    </div>
+</div>

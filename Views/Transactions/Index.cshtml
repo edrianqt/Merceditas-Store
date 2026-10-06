@@ -1,0 +1,81 @@
+@model MerceditasStore.Models.TransactionListViewModel
+@{
+    ViewData["Title"] = "Transactions";
+    var types = new[] { TransactionType.CashSale, TransactionType.CreditEntry, TransactionType.CreditPayment, TransactionType.GCashCashIn };
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Transactions",
+    Subtitle = "Cash sales, utang, payments and GCash cash-ins",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--success' href='{Url.Action("Create", "Transactions")}'>+ New Transaction</a>")
+})
+
+<div class="chips">
+    <div class="chip"><span class="chip__label">Cash sales</span><span class="chip__value">@Fmt.Peso(Model.CashSales)</span></div>
+    <div class="chip"><span class="chip__label">Utang</span><span class="chip__value">@Fmt.Peso(Model.CreditSales)</span></div>
+    <div class="chip"><span class="chip__label">Utang payments</span><span class="chip__value">@Fmt.Peso(Model.Payments)</span></div>
+    <div class="chip"><span class="chip__label">GCash cash-in</span><span class="chip__value">@Fmt.Peso(Model.GCash)</span></div>
+</div>
+
+<div class="card">
+    <div class="card__body">
+        <form method="get" asp-controller="Transactions" asp-action="Index" class="filters">
+            <input class="input filters__grow" type="search" name="q" value="@Model.Query" placeholder="Search customer or notes..." aria-label="Search customer or notes" />
+            <select class="select filters__fixed" name="type" aria-label="Type">
+                <option value="">All types</option>
+                @foreach (var t in types)
+                {
+                    <option value="@t" selected="@(Model.Type == t)">@Fmt.Label(t)</option>
+                }
+            </select>
+            <input class="input filters__fixed" type="date" name="dateFrom" value="@(Model.From?.ToString("yyyy-MM-dd"))" aria-label="From date" />
+            <input class="input filters__fixed" type="date" name="dateTo" value="@(Model.To?.ToString("yyyy-MM-dd"))" aria-label="To date" />
+            <button class="btn btn--primary" type="submit">Filter</button>
+            @if (Model.IsFiltered)
+            {
+                <a class="btn btn--outline" asp-controller="Transactions" asp-action="Index">Clear</a>
+            }
+        </form>
+
+        @if (Model.Items.Count == 0)
+        {
+            <div class="empty">@(Model.IsFiltered ? "No transactions match these filters." : "No transactions yet.")</div>
+        }
+        else
+        {
+            <div class="table" style="--cols: 1fr .9fr 1fr 1.8fr .8fr .6fr;">
+                <div class="table__head">
+                    <div>Time</div>
+                    <div>Type</div>
+                    <div>Customer</div>
+                    <div>Notes</div>
+                    <div>Amount</div>
+                    <div class="table__cell--end">Actions</div>
+                </div>
+                @foreach (var t in Model.Items)
+                {
+                    var pill = t.Type switch
+                    {
+                        TransactionType.CreditEntry => "pill--warn",
+                        TransactionType.GCashCashIn => "pill--info",
+                        _ => "pill--ok"
+                    };
+                    <div class="table__row">
+                        <div class="table__cell table__cell--strong">@t.CreatedAt.ToString("MMM dd, h:mm tt")</div>
+                        <div class="table__cell"><span class="pill @pill">@Fmt.Label(t.Type)</span></div>
+                        <div class="table__cell">@t.CustomerName</div>
+                        <div class="table__cell">@t.Notes</div>
+                        <div class="table__cell">@Fmt.Peso(t.Amount)</div>
+                        <div class="table__cell table__cell--end">
+                            <form method="post" asp-controller="Transactions" asp-action="Delete" data-confirm="Delete this transaction? Items it sold go back to stock and its listahan entry is removed.">
+                                <input type="hidden" name="id" value="@t.Id" />
+                                <button class="btn btn--mini btn--danger" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

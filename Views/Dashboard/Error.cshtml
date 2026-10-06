@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Something went wrong";
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Something went wrong",
+    Subtitle = "The last action could not be completed. Your saved data was not changed."
+})
+
+<div class="card form-card">
+    <div class="card__body">
+        <a class="btn btn--success" asp-controller="Dashboard" asp-action="Index">Back to Dashboard</a>
+    </div>
+</div>

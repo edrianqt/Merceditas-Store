@@ -1,0 +1,73 @@
+@model MerceditasStore.Models.TransactionForm
+@{
+    ViewData["Title"] = "New Transaction";
+    var customers = ViewBag.Customers as List<MerceditasStore.Models.Customer> ?? new List<MerceditasStore.Models.Customer>();
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "New Transaction",
+    Subtitle = "Record a sale, GCash cash-in, utang or payment by hand",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--ghost' href='{Url.Action("Index", "Transactions")}'>Back</a>")
+})
+
+<div class="card form-card">
+    <div class="card__head">
+        <div class="card__title">TRANSACTION DETAILS</div>
+    </div>
+    <div class="card__body">
+        <div class="note">Entries made here do not change stock. To sell items from inventory, use the cart on the Dashboard.</div>
+
+        <form method="post" asp-controller="Transactions" asp-action="Create">
+            <div class="form-grid">
+                <div class="field">
+                    <label class="label" asp-for="Type">Type</label>
+                    <select class="select" asp-for="Type">
+                        <option value="CashSale">Cash Sale</option>
+                        <option value="GCashCashIn">GCash Cash-In</option>
+                        <option value="CreditEntry">Utang (adds to listahan)</option>
+                        <option value="CreditPayment">Utang Payment (reduces listahan)</option>
+                    </select>
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Type)</div>
+                </div>
+                <div class="field">
+                    <label class="label" asp-for="CreatedAt">Time</label>
+                    <input class="input" asp-for="CreatedAt" type="datetime-local" value="@Model.CreatedAt.ToString("yyyy-MM-ddTHH:mm")" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.CreatedAt)</div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label class="label" asp-for="CustomerId">Customer (required for utang and payments)</label>
+                    <select class="select" asp-for="CustomerId">
+                        <option value="">(none)</option>
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </select>
+                    <div class="validation">@Html.ValidationMessageFor(m => m.CustomerId)</div>
+                </div>
+                <div class="field">
+                    <label class="label" asp-for="Amount">Amount (₱)</label>
+                    <input class="input" asp-for="Amount" type="number" step="0.01" min="0.01" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Amount)</div>
+                </div>
+            </div>
+
+            <div class="form-grid form-grid--1">
+                <div class="field">
+                    <label class="label" asp-for="Notes">Notes</label>
+                    <input class="input" asp-for="Notes" placeholder="e.g., items included, fee info, etc." />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Notes)</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn--success" type="submit">Save Transaction</button>
+                <a class="btn btn--outline" asp-controller="Transactions" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

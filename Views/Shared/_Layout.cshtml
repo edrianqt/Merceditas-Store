@@ -1,0 +1,83 @@
+@inject MerceditasStore.Services.AppStore Store
+@{
+    var storeName = Store.Settings.StoreName;
+    var pageTitle = ViewData["Title"] as string;
+    var title = string.IsNullOrWhiteSpace(pageTitle) ? storeName : $"{pageTitle} · {storeName}";
+    var controller = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    string Active(string c) => controller == c.ToLowerInvariant() ? "is-active" : "";
+    var flash = TempData["Flash"] as string;
+    var flashError = TempData["FlashError"] as string;
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title</title>
+    <link rel="icon" type="image/svg+xml" href="~/img/brand.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="app">
+    <aside class="sidebar">
+        <a class="brand" asp-controller="Dashboard" asp-action="Index">
+            <div class="brand__logo" aria-hidden="true">
+                <img src="~/img/brand.svg" alt="" />
+            </div>
+            <div class="brand__name">@storeName</div>
+        </a>
+
+        <nav class="nav">
+            <a class="nav__item @Active("Dashboard")" asp-controller="Dashboard" asp-action="Index">
+                <span class="nav__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "dashboard")</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav__item @Active("Transactions")" asp-controller="Transactions" asp-action="Index">
+                <span class="nav__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "transactions")</span>
+                <span>Transactions</span>
+            </a>
+            <a class="nav__item @Active("Inventory")" asp-controller="Inventory" asp-action="Index">
+                <span class="nav__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "inventory")</span>
+                <span>Inventory</span>
+            </a>
+            <a class="nav__item @Active("Credit")" asp-controller="Credit" asp-action="Index">
+                <span class="nav__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "credit")</span>
+                <span>Listahan (Credit)</span>
+            </a>
+            <a class="nav__item @Active("Customers")" asp-controller="Customers" asp-action="Index">
+                <span class="nav__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "customers")</span>
+                <span>Customers</span>
+            </a>
+            <div class="nav__spacer"></div>
+            <a class="nav__item @Active("Settings")" asp-controller="Settings" asp-action="Index">
+                <span class="nav__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "settings")</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="page">
+            @if (!string.IsNullOrWhiteSpace(flash))
+            {
+                <div class="flash flash--ok" role="status">@flash</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(flashError))
+            {
+                <div class="flash flash--error" role="alert">@flashError</div>
+            }
+            @RenderBody()
+        </div>
+    </main>
+    <script>
+        // Ask before any action marked with data-confirm
+        document.addEventListener('submit', function (e) {
+            var message = e.target.getAttribute && e.target.getAttribute('data-confirm');
+            if (message && !window.confirm(message)) e.preventDefault();
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

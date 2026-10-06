@@ -1,0 +1,83 @@
+@model MerceditasStore.Models.InventoryListViewModel
+@{
+    ViewData["Title"] = "Inventory";
+    var isFiltered = !string.IsNullOrWhiteSpace(Model.Query) || Model.LowOnly;
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Inventory",
+    Subtitle = "Manage products, pricing, and stock levels",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--success' href='{Url.Action("Create", "Inventory")}'>+ Add Product</a>")
+})
+
+<div class="chips">
+    <div class="chip"><span class="chip__label">Products</span><span class="chip__value">@Model.TotalCount</span></div>
+    <div class="chip"><span class="chip__label">Low on stock</span><span class="chip__value">@Model.LowCount</span></div>
+    <div class="chip"><span class="chip__label">Stock value (at buy price)</span><span class="chip__value">@Fmt.Peso(Model.StockValue)</span></div>
+</div>
+
+<div class="card">
+    <div class="card__body">
+        <form method="get" asp-controller="Inventory" asp-action="Index" class="filters">
+            <input class="input filters__grow" type="search" name="q" value="@Model.Query" placeholder="Search products..." aria-label="Search products" />
+            <label class="check">
+                <input type="checkbox" name="lowOnly" value="true" checked="@Model.LowOnly" />
+                Low stock only
+            </label>
+            <button class="btn btn--primary" type="submit">Filter</button>
+            @if (isFiltered)
+            {
+                <a class="btn btn--outline" asp-controller="Inventory" asp-action="Index">Clear</a>
+            }
+        </form>
+
+        @if (Model.Items.Count == 0)
+        {
+            <div class="empty">@(isFiltered ? "No products match these filters." : "No products yet.")</div>
+        }
+        else
+        {
+            <div class="table" style="--cols: 1.4fr .9fr .7fr .7fr 2.3fr;">
+                <div class="table__head">
+                    <div>Item</div>
+                    <div>Stock</div>
+                    <div>Buy</div>
+                    <div>Sell</div>
+                    <div class="table__cell--end">Actions</div>
+                </div>
+                @foreach (var p in Model.Items)
+                {
+                    <div class="table__row">
+                        <div class="table__cell table__cell--strong">@p.Name</div>
+                        <div class="table__cell">
+                            @Fmt.Qty(p.Stock) @p.Unit
+                            @if (p.Stock <= 0)
+                            {
+                                <span class="pill pill--danger">OUT</span>
+                            }
+                            else if (p.Stock <= p.LowStockThreshold)
+                            {
+                                <span class="pill pill--danger">LOW</span>
+                            }
+                        </div>
+                        <div class="table__cell">@Fmt.Peso(p.BuyPrice)</div>
+                        <div class="table__cell">@Fmt.Peso(p.SellPrice)</div>
+                        <div class="table__cell table__cell--end">
+                            <form method="post" asp-controller="Inventory" asp-action="Restock" class="restock">
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <input class="input input--mini" type="number" name="amount" step="0.01" min="0.01" value="@Fmt.Qty(Model.RestockAmount)" aria-label="Restock amount for @p.Name" />
+                                <button class="btn btn--mini btn--success" type="submit">Restock</button>
+                            </form>
+                            <a class="btn btn--mini btn--outline" asp-controller="Inventory" asp-action="Edit" asp-route-id="@p.Id">Edit</a>
+                            <form method="post" asp-controller="Inventory" asp-action="Delete" data-confirm="Delete @p.Name?">
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <button class="btn btn--mini btn--danger" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

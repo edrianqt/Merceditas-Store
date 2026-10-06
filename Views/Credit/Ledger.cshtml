@@ -1,0 +1,65 @@
+@model MerceditasStore.Models.CreditLedgerViewModel
+@{
+    ViewData["Title"] = $"Ledger: {Model.CustomerName}";
+    var back = Url.Action("Index", "Credit");
+    var addUtang = Url.Action("Create", "Credit", new { customerId = Model.CustomerId, kind = "Utang" });
+    var addPayment = Url.Action("Create", "Credit", new { customerId = Model.CustomerId, kind = "Payment" });
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = $"Ledger: {Model.CustomerName}",
+    Subtitle = $"Current balance: {Fmt.Peso(Model.Balance)}",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--ghost' href='{back}'>Back</a> <a class='btn btn--warning' href='{addUtang}'>+ Utang</a> <a class='btn btn--success' href='{addPayment}'>+ Payment</a>")
+})
+
+<div class="card">
+    <div class="card__head card__head--split">
+        <div class="card__title">HISTORY</div>
+        @if (Model.Balance > 0)
+        {
+            <form method="post" asp-controller="Credit" asp-action="Settle" data-confirm="Record a payment of @Fmt.Peso(Model.Balance) and mark @Model.CustomerName as fully paid?">
+                <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                <button class="btn btn--mini btn--success" type="submit">Mark Fully Paid (@Fmt.Peso(Model.Balance))</button>
+            </form>
+        }
+    </div>
+    <div class="card__body">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="empty">No ledger entries yet.</div>
+        }
+        else
+        {
+            <div class="table" style="--cols: 1fr .7fr 1.6fr .8fr .8fr .6fr;">
+                <div class="table__head">
+                    <div>Date</div>
+                    <div>Kind</div>
+                    <div>Note</div>
+                    <div>Amount</div>
+                    <div>Balance</div>
+                    <div class="table__cell--end">Actions</div>
+                </div>
+                @foreach (var row in Model.Rows)
+                {
+                    var e = row.Entry;
+                    var isPayment = e.Kind == CreditKind.Payment;
+                    <div class="table__row">
+                        <div class="table__cell table__cell--strong">@e.CreatedAt.ToString("MMM dd, yyyy h:mm tt")</div>
+                        <div class="table__cell"><span class="pill @(isPayment ? "pill--ok" : "pill--warn")">@Fmt.Label(e.Kind)</span></div>
+                        <div class="table__cell">@e.Note</div>
+                        <div class="table__cell">@(isPayment ? "−" : "+")@Fmt.Peso(e.Amount)</div>
+                        <div class="table__cell">@Fmt.Peso(row.RunningBalance)</div>
+                        <div class="table__cell table__cell--end">
+                            <form method="post" asp-controller="Credit" asp-action="Delete" data-confirm="Delete this ledger entry? Its transaction is deleted too and any items go back to stock.">
+                                <input type="hidden" name="id" value="@e.Id" />
+                                <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                                <button class="btn btn--mini btn--danger" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

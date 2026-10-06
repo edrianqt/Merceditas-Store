@@ -1,0 +1,77 @@
+@model MerceditasStore.Models.CreditEntryForm
+@{
+    ViewData["Title"] = "Add Credit Entry";
+    var customers = ViewBag.Customers as List<MerceditasStore.Models.CustomerRow> ?? new List<MerceditasStore.Models.CustomerRow>();
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Add Credit Entry",
+    Subtitle = "Record utang or a payment",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--ghost' href='{Url.Action("Index", "Credit")}'>Back</a>")
+})
+
+<div class="card form-card">
+    <div class="card__head">
+        <div class="card__title">ENTRY DETAILS</div>
+    </div>
+    <div class="card__body">
+        @if (customers.Count == 0)
+        {
+            <div class="empty">Add a customer first, then record their utang here.</div>
+            <a class="btn btn--success" asp-controller="Customers" asp-action="Create">Add Customer</a>
+        }
+        else
+        {
+            <form method="post" asp-controller="Credit" asp-action="Create">
+                <div class="form-grid">
+                    <div class="field">
+                        <label class="label" asp-for="CustomerId">Customer</label>
+                        <select class="select" asp-for="CustomerId">
+                            <option value="">Select customer...</option>
+                            @foreach (var r in customers)
+                            {
+                                <option value="@r.Customer.Id">@r.Customer.Name (owes @Fmt.Peso(r.Balance))</option>
+                            }
+                        </select>
+                        <div class="validation">@Html.ValidationMessageFor(m => m.CustomerId)</div>
+                    </div>
+                    <div class="field">
+                        <label class="label" asp-for="CreatedAt">Date</label>
+                        <input class="input" asp-for="CreatedAt" type="datetime-local" value="@Model.CreatedAt.ToString("yyyy-MM-ddTHH:mm")" />
+                        <div class="validation">@Html.ValidationMessageFor(m => m.CreatedAt)</div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label class="label" asp-for="Kind">Kind</label>
+                        <select class="select" asp-for="Kind">
+                            <option value="Utang">Utang (adds to balance)</option>
+                            <option value="Payment">Payment (reduces balance)</option>
+                        </select>
+                        <div class="validation">@Html.ValidationMessageFor(m => m.Kind)</div>
+                    </div>
+                    <div class="field">
+                        <label class="label" asp-for="Amount">Amount (₱)</label>
+                        <input class="input" asp-for="Amount" type="number" step="0.01" min="0.01" />
+                        <div class="validation">@Html.ValidationMessageFor(m => m.Amount)</div>
+                    </div>
+                </div>
+
+                <div class="form-grid form-grid--1">
+                    <div class="field">
+                        <label class="label" asp-for="Note">Note (optional)</label>
+                        <input class="input" asp-for="Note" placeholder="e.g., partial payment / items list" />
+                        <div class="validation">@Html.ValidationMessageFor(m => m.Note)</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn--success" type="submit">Save Entry</button>
+                    <a class="btn btn--outline" asp-controller="Credit" asp-action="Index">Cancel</a>
+                </div>
+            </form>
+        }
+    </div>
+</div>

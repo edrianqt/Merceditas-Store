@@ -1,0 +1,58 @@
+@model MerceditasStore.Models.CreditIndexViewModel
+@{
+    ViewData["Title"] = "Listahan (Credit)";
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Listahan (Credit)",
+    Subtitle = $"Total outstanding: {Fmt.Peso(Model.TotalOutstanding)}",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--success' href='{Url.Action("Create", "Credit")}'>+ Add Credit Entry</a>")
+})
+
+<div class="card">
+    <div class="card__head card__head--split">
+        <div class="card__title">@(Model.ShowAll ? "ALL CUSTOMERS" : "CUSTOMERS WITH A BALANCE")</div>
+        @if (Model.ShowAll)
+        {
+            <a class="link" asp-controller="Credit" asp-action="Index">Show only customers with a balance</a>
+        }
+        else
+        {
+            <a class="link" asp-controller="Credit" asp-action="Index" asp-route-showAll="true">Show all customers</a>
+        }
+    </div>
+    <div class="card__body">
+        @if (Model.Rows.Count == 0)
+        {
+            <div class="empty">No one owes anything right now.</div>
+        }
+        else
+        {
+            <div class="table" style="--cols: 1.3fr .8fr .8fr 2fr;">
+                <div class="table__head">
+                    <div>Customer</div>
+                    <div>Balance</div>
+                    <div>Last Activity</div>
+                    <div class="table__cell--end">Actions</div>
+                </div>
+                @foreach (var row in Model.Rows)
+                {
+                    <div class="table__row">
+                        <div class="table__cell table__cell--strong">@row.Customer.Name</div>
+                        <div class="table__cell">@Fmt.Peso(row.Balance)</div>
+                        <div class="table__cell">@(row.LastActivity is null ? "-" : row.LastActivity.Value.ToString("MMM dd, yyyy"))</div>
+                        <div class="table__cell table__cell--end">
+                            <a class="btn btn--mini btn--outline" asp-controller="Credit" asp-action="Ledger" asp-route-customerId="@row.Customer.Id">Ledger</a>
+                            <a class="btn btn--mini btn--outline" asp-controller="Credit" asp-action="Create" asp-route-customerId="@row.Customer.Id" asp-route-kind="Utang">+ Utang</a>
+                            @if (row.Balance > 0)
+                            {
+                                <a class="btn btn--mini btn--success" asp-controller="Credit" asp-action="Create" asp-route-customerId="@row.Customer.Id" asp-route-kind="Payment">Pay</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

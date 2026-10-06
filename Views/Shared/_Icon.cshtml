@@ -1,0 +1,86 @@
+@model string
+@{
+    var name = (Model ?? "").ToLowerInvariant();
+    string Path(string d) => d;
+}
+@switch (name)
+{
+    case "dashboard":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 13.2V6.8C4 5.8 4.8 5 5.8 5h4.4c1 0 1.8.8 1.8 1.8v6.4c0 1-.8 1.8-1.8 1.8H5.8c-1 0-1.8-.8-1.8-1.8z" fill="currentColor" opacity=".9"/>
+            <path d="M12 17.2v-1.4c0-1 .8-1.8 1.8-1.8h4.4c1 0 1.8.8 1.8 1.8v1.4c0 1-.8 1.8-1.8 1.8h-4.4c-1 0-1.8-.8-1.8-1.8z" fill="currentColor" opacity=".9"/>
+            <path d="M12 10.2V6.8c0-1 .8-1.8 1.8-1.8h4.4c1 0 1.8.8 1.8 1.8v3.4c0 1-.8 1.8-1.8 1.8h-4.4c-1 0-1.8-.8-1.8-1.8z" fill="currentColor" opacity=".7"/>
+            <path d="M4 17.2v-.9c0-1 .8-1.8 1.8-1.8h4.4c1 0 1.8.8 1.8 1.8v.9c0 1-.8 1.8-1.8 1.8H5.8c-1 0-1.8-.8-1.8-1.8z" fill="currentColor" opacity=".7"/>
+        </svg>
+        break;
+    case "transactions":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 7.5h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+            <path d="M6 16.5h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+        </svg>
+        break;
+    case "inventory":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 8.5 12 5l7 3.5v8L12 20l-7-3.5v-8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M12 5v15" stroke="currentColor" stroke-width="2" opacity=".7"/>
+        </svg>
+        break;
+    case "credit":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4.5 8.5h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6.5 6.5h11c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2h-11c-1.1 0-2-.9-2-2v-9c0-1.1.9-2 2-2Z" stroke="currentColor" stroke-width="2" opacity=".85"/>
+            <path d="M7.5 15.5h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+        </svg>
+        break;
+    case "customers":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 12.2c2 0 3.6-1.6 3.6-3.6S14 5 12 5 8.4 6.6 8.4 8.6 10 12.2 12 12.2Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M5.8 19c1.3-3.1 4-4.8 6.2-4.8s4.9 1.7 6.2 4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+        </svg>
+        break;
+    case "settings":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M19 12a7.4 7.4 0 0 0-.1-1l2-1.4-2-3.5-2.4.8a7.7 7.7 0 0 0-1.7-1l-.3-2.5H9.5l-.3 2.5a7.7 7.7 0 0 0-1.7 1l-2.4-.8-2 3.5 2 1.4a7.4 7.4 0 0 0 0 2l-2 1.4 2 3.5 2.4-.8c.5.4 1.1.7 1.7 1l.3 2.5h5l.3-2.5c.6-.3 1.2-.6 1.7-1l2.4.8 2-3.5-2-1.4c.1-.3.1-.7.1-1Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity=".8"/>
+        </svg>
+        break;
+    case "cash":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3" y="6.5" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="12" cy="12" r="2.6" fill="currentColor"/>
+            <path d="M6.5 9.5v5M17.5 9.5v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        break;
+    case "credit-card":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3" y="5.5" width="18" height="13" rx="2.2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M3 10h18" stroke="currentColor" stroke-width="2.2"/>
+            <path d="M6.5 14.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        break;
+    case "down":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7l5.5 5.5 3.5-3.5L20 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14.5 16H20v-5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        break;
+    case "clock":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        break;
+    case "search":
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"/>
+            <path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        break;
+    default:
+        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="2.5" fill="currentColor" opacity=".8"/>
+        </svg>
+        break;
+}
+

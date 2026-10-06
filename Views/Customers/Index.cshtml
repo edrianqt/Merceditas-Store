@@ -1,0 +1,69 @@
+@model List<MerceditasStore.Models.CustomerRow>
+@{
+    ViewData["Title"] = "Customers";
+    var q = ViewBag.Query as string ?? "";
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Customers",
+    Subtitle = "Search and manage your customer list",
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--success' href='{Url.Action("Create", "Customers")}'>+ Add Customer</a>")
+})
+
+<div class="card">
+    <div class="card__body">
+        <form method="get" asp-controller="Customers" asp-action="Index" class="filters">
+            <input class="input filters__grow" type="search" name="q" value="@q" placeholder="Search by name, phone or address..." />
+            <button class="btn btn--primary" type="submit">Search</button>
+            @if (q.Length > 0)
+            {
+                <a class="btn btn--outline" asp-controller="Customers" asp-action="Index">Clear</a>
+            }
+        </form>
+
+        @if (Model.Count == 0)
+        {
+            <div class="empty">@(q.Length > 0 ? "No customers match your search." : "No customers yet.")</div>
+        }
+        else
+        {
+            <div class="table" style="--cols: 1.3fr .9fr 1.2fr .8fr 1.5fr;">
+                <div class="table__head">
+                    <div>Name</div>
+                    <div>Phone</div>
+                    <div>Address</div>
+                    <div>Balance</div>
+                    <div class="table__cell--end">Actions</div>
+                </div>
+                @foreach (var r in Model)
+                {
+                    var c = r.Customer;
+                    <div class="table__row">
+                        <div class="table__cell table__cell--strong">@c.Name</div>
+                        <div class="table__cell">@c.Phone</div>
+                        <div class="table__cell">@c.Address</div>
+                        <div class="table__cell">
+                            @if (r.Balance > 0)
+                            {
+                                <span class="pill pill--warn">@Fmt.Peso(r.Balance)</span>
+                            }
+                            else
+                            {
+                                <span class="muted">@Fmt.Peso(r.Balance)</span>
+                            }
+                        </div>
+                        <div class="table__cell table__cell--end">
+                            <a class="btn btn--mini btn--outline" asp-controller="Credit" asp-action="Ledger" asp-route-customerId="@c.Id">Ledger</a>
+                            <a class="btn btn--mini btn--outline" asp-controller="Customers" asp-action="Edit" asp-route-id="@c.Id">Edit</a>
+                            <form method="post" asp-controller="Customers" asp-action="Delete" data-confirm="Delete @c.Name and their ledger history?">
+                                <input type="hidden" name="id" value="@c.Id" />
+                                <button class="btn btn--mini btn--danger" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

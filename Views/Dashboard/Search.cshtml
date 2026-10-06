@@ -1,0 +1,100 @@
+@model MerceditasStore.Models.SearchViewModel
+@{
+    ViewData["Title"] = "Search";
+    var subtitle = Model.Query.Length == 0
+        ? "Type a product or customer name"
+        : $"{Model.Products.Count} product(s) and {Model.Customers.Count} customer(s) match \"{Model.Query}\"";
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Search",
+    Subtitle = subtitle
+})
+
+<div class="card">
+    <div class="card__body">
+        <form method="get" asp-controller="Dashboard" asp-action="Search" class="filters">
+            <input class="input filters__grow" type="search" name="q" value="@Model.Query" placeholder="Search inventory or customers" autofocus />
+            <button class="btn btn--primary" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+@if (Model.Query.Length > 0)
+{
+    <div class="card">
+        <div class="card__head">
+            <div class="card__title">INVENTORY</div>
+        </div>
+        <div class="card__body">
+            @if (Model.Products.Count == 0)
+            {
+                <div class="empty">No products match.</div>
+            }
+            else
+            {
+                <div class="table" style="--cols: 1.6fr .8fr .8fr .8fr;">
+                    <div class="table__head">
+                        <div>Item</div>
+                        <div>Stock</div>
+                        <div>Sell Price</div>
+                        <div class="table__cell--end">Actions</div>
+                    </div>
+                    @foreach (var p in Model.Products)
+                    {
+                        <div class="table__row">
+                            <div class="table__cell table__cell--strong">@p.Name</div>
+                            <div class="table__cell">
+                                @Fmt.Qty(p.Stock) @p.Unit
+                                @if (p.Stock <= p.LowStockThreshold)
+                                {
+                                    <span class="pill pill--danger">LOW</span>
+                                }
+                            </div>
+                            <div class="table__cell">@Fmt.Peso(p.SellPrice)</div>
+                            <div class="table__cell table__cell--end">
+                                <a class="btn btn--mini btn--outline" asp-controller="Inventory" asp-action="Edit" asp-route-id="@p.Id">Edit</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__head">
+            <div class="card__title">CUSTOMERS</div>
+        </div>
+        <div class="card__body">
+            @if (Model.Customers.Count == 0)
+            {
+                <div class="empty">No customers match.</div>
+            }
+            else
+            {
+                <div class="table" style="--cols: 1.4fr 1fr .8fr 1fr;">
+                    <div class="table__head">
+                        <div>Name</div>
+                        <div>Phone</div>
+                        <div>Balance</div>
+                        <div class="table__cell--end">Actions</div>
+                    </div>
+                    @foreach (var r in Model.Customers)
+                    {
+                        <div class="table__row">
+                            <div class="table__cell table__cell--strong">@r.Customer.Name</div>
+                            <div class="table__cell">@r.Customer.Phone</div>
+                            <div class="table__cell">@Fmt.Peso(r.Balance)</div>
+                            <div class="table__cell table__cell--end">
+                                <a class="btn btn--mini btn--outline" asp-controller="Credit" asp-action="Ledger" asp-route-customerId="@r.Customer.Id">Ledger</a>
+                                <a class="btn btn--mini btn--outline" asp-controller="Customers" asp-action="Edit" asp-route-id="@r.Customer.Id">Edit</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}

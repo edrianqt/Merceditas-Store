@@ -1,0 +1,49 @@
+@model MerceditasStore.Models.Customer
+@{
+    ViewData["Title"] = "Edit Customer";
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Edit Customer",
+    Subtitle = Model.Name,
+    Actions = new Microsoft.AspNetCore.Html.HtmlString($"<a class='btn btn--ghost' href='{Url.Action("Index", "Customers")}'>Back</a>")
+})
+
+<div class="card form-card">
+    <div class="card__head">
+        <div class="card__title">CUSTOMER DETAILS</div>
+    </div>
+    <div class="card__body">
+        <form method="post" asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-grid form-grid--1">
+                <div class="field">
+                    <label class="label" asp-for="Name">Name</label>
+                    <input class="input" asp-for="Name" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Name)</div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label class="label" asp-for="Phone">Phone (optional)</label>
+                    <input class="input" asp-for="Phone" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Phone)</div>
+                </div>
+                <div class="field">
+                    <label class="label" asp-for="Address">Address (optional)</label>
+                    <input class="input" asp-for="Address" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Address)</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn--success" type="submit">Save Changes</button>
+                <a class="btn btn--outline" asp-controller="Customers" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+

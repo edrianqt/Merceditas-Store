@@ -1,0 +1,176 @@
+{
+  "Settings": {
+    "StoreName": "MERCEDITA\u0027S STORE",
+    "DefaultLowStockThreshold": 5,
+    "DefaultRestockAmount": 10
+  },
+  "Customers": [
+    {
+      "Id": "4e38afb2-7763-4046-bb25-eaef2bf9ffce",
+      "Name": "Mang Jose",
+      "Phone": null,
+      "Address": null
+    },
+    {
+      "Id": "0e935613-4010-4ca5-b0a6-fc05621242f2",
+      "Name": "Aling Tess",
+      "Phone": null,
+      "Address": null
+    },
+    {
+      "Id": "0aa27b79-6163-4921-a8b4-87469b301f02",
+      "Name": "Liwanie Gazo",
+      "Phone": null,
+      "Address": null
+    },
+    {
+      "Id": "92aecfcb-2fde-475e-945e-9f42a632307c",
+      "Name": "Ninong Mascardo",
+      "Phone": null,
+      "Address": null
+    }
+  ],
+  "Inventory": [
+    {
+      "Id": "3623b68a-350d-4878-9e8e-fc7b17d756ae",
+      "Name": "Rice (Sinandomeng)",
+      "Unit": "kg",
+      "Stock": 45,
+      "BuyPrice": 47.0,
+      "SellPrice": 58.0,
+      "LowStockThreshold": 8
+    },
+    {
+      "Id": "5713ce1b-d86a-4586-9f75-73f7c80ceb2e",
+      "Name": "Lucky Me! Pancit Canton",
+      "Unit": "pc",
+      "Stock": 12,
+      "BuyPrice": 12.50,
+      "SellPrice": 16.00,
+      "LowStockThreshold": 6
+    },
+    {
+      "Id": "716e7865-3f40-4fc8-8b4e-77417a586d0d",
+      "Name": "Nescafe Original",
+      "Unit": "sachet",
+      "Stock": 28,
+      "BuyPrice": 8.0,
+      "SellPrice": 10.0,
+      "LowStockThreshold": 20
+    }
+  ],
+  "Transactions": [
+    {
+      "Id": "8e8b38cc-61b2-4124-aef4-5d302066055e",
+      "CreatedAt": "2026-10-06T09:45:00+08:00",
+      "Type": "CashSale",
+      "CustomerId": null,
+      "CustomerName": "",
+      "Notes": "1 kg Rice, 3 Eggs",
+      "Amount": 82,
+      "Lines": []
+    },
+    {
+      "Id": "d4e27642-c813-4380-908a-67c856891ca8",
+      "CreatedAt": "2026-10-04T16:00:00+08:00",
+      "Type": "CreditEntry",
+      "CustomerId": "4e38afb2-7763-4046-bb25-eaef2bf9ffce",
+      "CustomerName": "Mang Jose",
+      "Notes": "Opening balance",
+      "Amount": 450,
+      "Lines": []
+    },
+    {
+      "Id": "798ae1f4-9a48-4c6f-a35f-5c5a5f22cf04",
+      "CreatedAt": "2026-10-06T10:10:00+08:00",
+      "Type": "CreditEntry",
+      "CustomerId": "0e935613-4010-4ca5-b0a6-fc05621242f2",
+      "CustomerName": "Aling Tess",
+      "Notes": "Sunsilk sachet, Surf pouch, rice",
+      "Amount": 125,
+      "Lines": []
+    },
+    {
+      "Id": "307eeb42-cc96-4fc2-9dae-ed296d6d283d",
+      "CreatedAt": "2026-10-06T11:28:00",
+      "Type": "CreditPayment",
+      "CustomerId": "4e38afb2-7763-4046-bb25-eaef2bf9ffce",
+      "CustomerName": "Mang Jose",
+      "Notes": null,
+      "Amount": 450,
+      "Lines": []
+    },
+    {
+      "Id": "82eaa60d-b523-4f38-986a-fa94467cd572",
+      "CreatedAt": "2026-10-06T11:28:00",
+      "Type": "CreditPayment",
+      "CustomerId": "0e935613-4010-4ca5-b0a6-fc05621242f2",
+      "CustomerName": "Aling Tess",
+      "Notes": null,
+      "Amount": 125,
+      "Lines": []
+    },
+    {
+      "Id": "99507655-fde4-4a01-92c2-d801a85a2619",
+      "CreatedAt": "2026-10-06T11:33:00",
+      "Type": "CreditEntry",
+      "CustomerId": "0aa27b79-6163-4921-a8b4-87469b301f02",
+      "CustomerName": "Liwanie Gazo",
+      "Notes": null,
+      "Amount": 5000,
+      "Lines": []
+    }
+  ],
+  "CreditLedger": [
+    {
+      "Id": "6efd8baa-6b3c-4b56-a619-0c577903a927",
+      "CreatedAt": "2026-10-04T16:00:00+08:00",
+      "CustomerId": "4e38afb2-7763-4046-bb25-eaef2bf9ffce",
+      "CustomerName": "Mang Jose",
+      "Kind": "Utang",
+      "Amount": 450,
+      "Note": "Opening balance",
+      "TransactionId": "d4e27642-c813-4380-908a-67c856891ca8"
+    },
+    {
+      "Id": "279b8217-b086-4466-94e8-09ff0037db73",
+      "CreatedAt": "2026-10-06T10:10:00+08:00",
+      "CustomerId": "0e935613-4010-4ca5-b0a6-fc05621242f2",
+      "CustomerName": "Aling Tess",
+      "Kind": "Utang",
+      "Amount": 125,
+      "Note": "Sunsilk sachet, Surf pouch, rice",
+      "TransactionId": "798ae1f4-9a48-4c6f-a35f-5c5a5f22cf04"
+    },
+    {
+      "Id": "a474d751-46da-4231-b2e6-83e6ea4103ba",
+      "CreatedAt": "2026-10-06T11:28:00",
+      "CustomerId": "4e38afb2-7763-4046-bb25-eaef2bf9ffce",
+      "CustomerName": "Mang Jose",
+      "Kind": "Payment",
+      "Amount": 450,
+      "Note": null,
+      "TransactionId": "307eeb42-cc96-4fc2-9dae-ed296d6d283d"
+    },
+    {
+      "Id": "f315f485-4654-4100-81a7-7d13b1cf1578",
+      "CreatedAt": "2026-10-06T11:28:00",
+      "CustomerId": "0e935613-4010-4ca5-b0a6-fc05621242f2",
+      "CustomerName": "Aling Tess",
+      "Kind": "Payment",
+      "Amount": 125,
+      "Note": null,
+      "TransactionId": "82eaa60d-b523-4f38-986a-fa94467cd572"
+    },
+    {
+      "Id": "c3c9222b-4462-41a6-90f6-bc7a24ea6caa",
+      "CreatedAt": "2026-10-06T11:33:00",
+      "CustomerId": "0aa27b79-6163-4921-a8b4-87469b301f02",
+      "CustomerName": "Liwanie Gazo",
+      "Kind": "Utang",
+      "Amount": 5000,
+      "Note": null,
+      "TransactionId": "99507655-fde4-4a01-92c2-d801a85a2619"
+    }
+  ]
+}

@@ -1,0 +1,354 @@
+@model MerceditasStore.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var hasCart = Model.CartSummary.Count > 0;
+}
+
+<header class="topbar">
+    <h1 class="topbar__title">@Model.StoreName</h1>
+    <div class="topbar__search">
+        <form class="search" method="get" asp-controller="Dashboard" asp-action="Search">
+            <span class="search__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", "search")</span>
+            <input class="search__input" type="search" name="q" placeholder="@Model.SearchPlaceholder" aria-label="@Model.SearchPlaceholder" />
+        </form>
+    </div>
+</header>
+
+<section class="stats">
+    @foreach (var card in Model.StatCards)
+    {
+        var tone = card.Tone.ToString().ToLowerInvariant();
+        <div class="stat stat--@tone">
+            <div class="stat__icon" aria-hidden="true">@await Html.PartialAsync("_Icon", card.Icon)</div>
+            <div class="stat__meta">
+                <div class="stat__title">@card.Title</div>
+                @if (card.IsClock)
+                {
+                    <div class="stat__value" id="clock-time">@card.Value</div>
+                    <div class="stat__sub" id="clock-date">@card.SubValue</div>
+                }
+                else
+                {
+                    <div class="stat__value">@card.Value</div>
+                    @if (!string.IsNullOrWhiteSpace(card.SubValue))
+                    {
+                        <div class="stat__sub">@card.SubValue</div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</section>
+
+<section class="grid">
+    <div class="card">
+        <div class="card__head">
+            <div class="card__title">QUICK TRANSACTION</div>
+        </div>
+        <div class="card__body">
+            @if (Model.Products.Count == 0)
+            {
+                <div class="empty">No products yet.</div>
+                <a class="btn btn--success btn--block" asp-controller="Inventory" asp-action="Create">Add your first product</a>
+            }
+            else
+            {
+                <form method="post" asp-controller="Dashboard" asp-action="AddToCart" id="quick-form">
+                    <div class="field">
+                        <label class="label" for="cart-search">Item</label>
+                        <input class="input" id="cart-search" type="search" placeholder="Type to search items..." autocomplete="off" />
+                        <select class="select itemlist" id="cart-product" name="ProductId" size="5" required aria-label="Matching items">
+                            @foreach (var p in Model.Products)
+                            {
+                                <option value="@p.Id" data-name="@p.Name" data-price="@p.DefaultPrice.ToString("0.00")" disabled="@(p.Stock <= 0)">@p.Name — @Fmt.Peso(p.DefaultPrice)/@p.Unit (@(p.Stock <= 0 ? "out of stock" : Fmt.Qty(p.Stock) + " left"))</option>
+                            }
+                        </select>
+                        <div class="muted" id="cart-nomatch" hidden>No items match.</div>
+                    </div>
+
+                    <div class="row row--2even">
+                        <div class="field">
+                            <label class="label" for="cart-qty">Quantity</label>
+                            <input class="input" id="cart-qty" name="Quantity" type="number" step="0.01" min="0.01" value="1" required />
+                        </div>
+                        <div class="field">
+                            <label class="label" for="cart-price">Unit Price (optional)</label>
+                            <input class="input" id="cart-price" name="UnitPrice" type="number" step="0.01" min="0" placeholder="Default" />
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="quick-customer">Customer (required for utang)</label>
+                        <select class="select select--block" id="quick-customer" name="CustomerId">
+                            <option value="">Walk-in customer</option>
+                            @foreach (var c in Model.Customers)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="muted quicktotal" id="quick-total"></div>
+
+                    <div class="stack">
+                        <button class="btn btn--primary btn--block" type="submit" asp-controller="Dashboard" asp-action="QuickSale" name="AsCredit" value="false">Sell Now (Cash)</button>
+                        <button class="btn btn--warning btn--block" type="submit" asp-controller="Dashboard" asp-action="QuickSale" name="AsCredit" value="true">Sell Now as "UTANG"</button>
+                        <button class="btn btn--outline btn--block" type="submit">Add to Cart Instead</button>
+                    </div>
+                </form>
+
+                <div class="quicklinks">
+                    <a class="btn btn--outline" asp-controller="Transactions" asp-action="Create" asp-route-type="GCashCashIn">GCash Cash-In</a>
+                    <a class="btn btn--outline" asp-controller="Credit" asp-action="Create" asp-route-kind="Payment">Receive Payment</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__head card__head--split">
+            <div class="card__title">CART SUMMARY</div>
+            @if (hasCart)
+            {
+                <form method="post" asp-controller="Dashboard" asp-action="ClearCart">
+                    <button class="btn btn--mini btn--outline" type="submit">Clear</button>
+                </form>
+            }
+        </div>
+        <div class="card__body">
+            @if (!hasCart)
+            {
+                <div class="empty">The cart is empty. Add an item to start a sale.</div>
+            }
+            else
+            {
+                <div class="list">
+                    @foreach (var item in Model.CartSummary)
+                    {
+                        <div class="cartline">
+                            <div>
+                                <div class="cartline__name">@item.Name</div>
+                                <div class="muted">@Fmt.Qty(item.Qty) @item.Unit × @Fmt.Peso(item.UnitPrice)</div>
+                            </div>
+                            <div class="cartline__total">@Fmt.Peso(item.LineTotal)</div>
+                            <form method="post" asp-controller="Dashboard" asp-action="RemoveCartLine">
+                                <input type="hidden" name="lineId" value="@item.LineId" />
+                                <button class="btn btn--mini btn--outline" type="submit" aria-label="Remove @item.Name">Remove</button>
+                            </form>
+                        </div>
+                    }
+                    <div class="list__divider"></div>
+                    <div class="list__row list__row--total">
+                        <div class="list__left">Total</div>
+                        <div class="list__right">@Fmt.Peso(Model.CartTotal)</div>
+                    </div>
+                </div>
+
+                <form method="post" asp-controller="Dashboard" asp-action="CompleteCart" class="checkout">
+                    <div class="field">
+                        <label class="label" for="cart-customer">Customer (required for utang)</label>
+                        <select class="select select--block" id="cart-customer" name="CustomerId">
+                            <option value="">Walk-in customer</option>
+                            @foreach (var c in Model.Customers)
+                            {
+                                <option value="@c.Id" selected="@(Model.SelectedCustomerId == c.Id)">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="stack">
+                        <button class="btn btn--primary btn--block" type="submit" name="AsCredit" value="false">Process as Cash Sale</button>
+                        <button class="btn btn--warning btn--block" type="submit" name="AsCredit" value="true">Mark as "UTANG" (Credit)</button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__head">
+            <div class="card__title">ACTIVE 'LISTAHAN' (CREDIT) TRACKER</div>
+        </div>
+        <div class="card__body">
+            @if (Model.CreditTracker.Count == 0)
+            {
+                <div class="empty">No one owes anything right now.</div>
+            }
+            else
+            {
+                <div class="table" style="--cols: 1.2fr .9fr .7fr 1fr;">
+                    <div class="table__head">
+                        <div>Customer</div>
+                        <div>Balance</div>
+                        <div>Last</div>
+                        <div></div>
+                    </div>
+                    @foreach (var c in Model.CreditTracker)
+                    {
+                        <div class="table__row">
+                            <div class="table__cell table__cell--strong">@c.Customer</div>
+                            <div class="table__cell">@Fmt.Peso(c.TotalBalance)</div>
+                            <div class="table__cell">@c.LastActivity</div>
+                            <div class="table__cell table__cell--actions">
+                                <a class="link" asp-controller="Credit" asp-action="Create" asp-route-customerId="@c.CustomerId" asp-route-kind="Payment">Pay</a>
+                                <a class="link" asp-controller="Credit" asp-action="Ledger" asp-route-customerId="@c.CustomerId">Details</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <a class="btn btn--success btn--block mt" asp-controller="Credit" asp-action="Create">Add New Credit Entry</a>
+        </div>
+    </div>
+</section>
+
+<section class="grid grid--bottom">
+    <div class="card">
+        <div class="card__head card__head--split">
+            <div class="card__title">LIVE INVENTORY &amp; PRICING</div>
+            <a class="link" asp-controller="Inventory" asp-action="Index">View all @Model.InventoryTotalCount</a>
+        </div>
+        <div class="card__body">
+            @if (Model.Inventory.Count == 0)
+            {
+                <div class="empty">No products yet.</div>
+            }
+            else
+            {
+                <div class="table" style="--cols: 1.5fr .8fr .9fr .9fr 1.5fr;">
+                    <div class="table__head">
+                        <div>Item</div>
+                        <div>Stock</div>
+                        <div>Buy Price</div>
+                        <div>Sell Price</div>
+                        <div>Status</div>
+                    </div>
+                    @foreach (var i in Model.Inventory)
+                    {
+                        <div class="table__row">
+                            <div class="table__cell table__cell--strong">@i.Name</div>
+                            <div class="table__cell">@i.Stock</div>
+                            <div class="table__cell">@i.BuyPrice</div>
+                            <div class="table__cell">@i.SellPrice</div>
+                            <div class="table__cell row--pill">
+                                @if (i.Status == InventoryStatus.Healthy)
+                                {
+                                    <span class="pill pill--ok">HEALTHY</span>
+                                    <a class="btn btn--mini btn--outline" asp-controller="Inventory" asp-action="Edit" asp-route-id="@i.Id">Edit</a>
+                                }
+                                else
+                                {
+                                    <span class="pill pill--danger">@(i.Status == InventoryStatus.OutOfStock ? "OUT OF STOCK" : "LOW STOCK")</span>
+                                    <form method="post" asp-controller="Inventory" asp-action="Restock">
+                                        <input type="hidden" name="id" value="@i.Id" />
+                                        <input type="hidden" name="returnTo" value="dashboard" />
+                                        <button class="btn btn--mini btn--success" type="submit">Restock +@Fmt.Qty(Model.RestockAmount)</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__head">
+            <div class="card__title">RECENT TRANSACTIONS</div>
+        </div>
+        <div class="card__body">
+            @if (Model.RecentTransactions.Count == 0)
+            {
+                <div class="empty">No transactions yet.</div>
+            }
+            else
+            {
+                <div class="feed">
+                    @foreach (var t in Model.RecentTransactions)
+                    {
+                        var kind = t.Kind.ToString().ToLowerInvariant();
+                        <div class="feed__row">
+                            <div class="feed__time">@t.Time</div>
+                            <div class="feed__dot feed__dot--@kind" aria-hidden="true"></div>
+                            <div class="feed__meta">
+                                <div class="feed__title">@t.Title</div>
+                                <div class="feed__sub">@t.Subtitle</div>
+                            </div>
+                            <div class="feed__amount">@t.AmountLabel</div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <a class="btn btn--link btn--block mt" asp-controller="Transactions" asp-action="Index">View All Transactions</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Live clock
+            var timeEl = document.getElementById('clock-time');
+            var dateEl = document.getElementById('clock-date');
+            function tick() {
+                var now = new Date();
+                if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            }
+            tick();
+            setInterval(tick, 15000);
+
+            // Quick transaction: search the item list and show the total
+            var search = document.getElementById('cart-search');
+            var product = document.getElementById('cart-product');
+            var price = document.getElementById('cart-price');
+            var qty = document.getElementById('cart-qty');
+            var total = document.getElementById('quick-total');
+            var noMatch = document.getElementById('cart-nomatch');
+            if (search && product && price && qty) {
+                function selected() {
+                    return product.selectedIndex >= 0 ? product.options[product.selectedIndex] : null;
+                }
+                function refresh() {
+                    var option = selected();
+                    var base = option ? option.getAttribute('data-price') : null;
+                    price.placeholder = base ? 'Default ' + base : 'Default';
+                    var unit = price.value !== '' ? parseFloat(price.value) : (base ? parseFloat(base) : NaN);
+                    var amount = unit * parseFloat(qty.value);
+                    total.textContent = option && isFinite(amount) && amount >= 0
+                        ? 'Total: \u20B1' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : '';
+                }
+                function filter() {
+                    var words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
+                    var firstMatch = -1, shown = 0;
+                    for (var i = 0; i < product.options.length; i++) {
+                        var option = product.options[i];
+                        var name = (option.getAttribute('data-name') || '').toLowerCase();
+                        var match = words.every(function (w) { return name.indexOf(w) !== -1; });
+                        option.hidden = !match;
+                        if (match) {
+                            shown++;
+                            if (firstMatch === -1 && !option.disabled) firstMatch = i;
+                        }
+                    }
+                    var current = selected();
+                    if (!current || current.hidden) product.selectedIndex = words.length ? firstMatch : -1;
+                    if (noMatch) noMatch.hidden = shown > 0;
+                    refresh();
+                }
+                search.addEventListener('input', filter);
+                search.addEventListener('keydown', function (e) {
+                    // Enter in the search box moves on to the quantity instead of submitting
+                    if (e.key === 'Enter') { e.preventDefault(); if (selected()) qty.select(); }
+                });
+                product.addEventListener('change', refresh);
+                price.addEventListener('input', refresh);
+                qty.addEventListener('input', refresh);
+                refresh();
+            }
+        })();
+    </script>
+}

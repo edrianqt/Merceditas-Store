@@ -1,0 +1,76 @@
+@model MerceditasStore.Models.SettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+@await Html.PartialAsync("_PageHeader", new MerceditasStore.Models.PageHeaderModel
+{
+    Title = "Settings",
+    Subtitle = "Store details, defaults, and your saved data"
+})
+
+<div class="card form-card">
+    <div class="card__head">
+        <div class="card__title">STORE SETTINGS</div>
+    </div>
+    <div class="card__body">
+        <form method="post" asp-controller="Settings" asp-action="Save">
+            <div class="form-grid form-grid--1">
+                <div class="field">
+                    <label class="label" asp-for="Settings.StoreName">Store name</label>
+                    <input class="input" asp-for="Settings.StoreName" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Settings.StoreName)</div>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="field">
+                    <label class="label" asp-for="Settings.DefaultLowStockThreshold">Low-stock threshold for new products</label>
+                    <input class="input" asp-for="Settings.DefaultLowStockThreshold" type="number" step="0.01" min="0" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Settings.DefaultLowStockThreshold)</div>
+                </div>
+                <div class="field">
+                    <label class="label" asp-for="Settings.DefaultRestockAmount">Default restock amount</label>
+                    <input class="input" asp-for="Settings.DefaultRestockAmount" type="number" step="0.01" min="0.01" />
+                    <div class="validation">@Html.ValidationMessageFor(m => m.Settings.DefaultRestockAmount)</div>
+                </div>
+            </div>
+            <button class="btn btn--success" type="submit">Save Settings</button>
+        </form>
+    </div>
+</div>
+
+<div class="card form-card">
+    <div class="card__head">
+        <div class="card__title">BACKUP &amp; RESTORE</div>
+    </div>
+    <div class="card__body">
+        <div class="note">
+            Saved automatically to <code>@Model.DataFilePath</code><br />
+            @Model.CustomerCount customer(s) · @Model.ProductCount product(s) · @Model.TransactionCount transaction(s) · @Model.LedgerCount listahan entr(ies)
+        </div>
+
+        <a class="btn btn--primary" asp-controller="Settings" asp-action="Backup">Download Backup</a>
+
+        <form method="post" enctype="multipart/form-data" asp-controller="Settings" asp-action="Restore" class="filters mt" data-confirm="Replace everything in the store with this backup?">
+            <input class="input filters__grow" type="file" name="file" accept=".json,application/json" aria-label="Backup file" required />
+            <button class="btn btn--outline" type="submit">Restore From Backup</button>
+        </form>
+    </div>
+</div>
+
+<div class="card form-card">
+    <div class="card__head">
+        <div class="card__title">START OVER</div>
+    </div>
+    <div class="card__body">
+        <div class="note">These replace your current records and cannot be undone. Download a backup first.</div>
+        <div class="form-actions">
+            <form method="post" asp-controller="Settings" asp-action="ClearAll" data-confirm="Remove ALL customers, products, transactions and listahan entries? This cannot be undone.">
+                <button class="btn btn--danger btn--block" type="submit">Clear All Records</button>
+            </form>
+            <form method="post" asp-controller="Settings" asp-action="ResetDemo" data-confirm="Replace ALL current records with the sample data? This cannot be undone.">
+                <button class="btn btn--outline btn--block" type="submit">Load Sample Data</button>
+            </form>
+        </div>
+    </div>
+</div>
